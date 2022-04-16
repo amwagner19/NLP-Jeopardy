@@ -26,15 +26,14 @@ def preprocessData():
         rounds.remove("Final Jeopardy!")
 
     # Give rounds a number label if they are from first or second round
-    rounds = [1 if round == 'Jeopardy!' else 2 for round in rounds]
+    rounds = [0 if round == 'Jeopardy!' else 1 for round in rounds]
 
     # Shuffle both lists together by first zipping them, and then shuffling
     temp = list(zip(questions, rounds))
     random.Random(329).shuffle(temp)
     questions, rounds = zip(*temp)
 
-    # Split data into train, test and dev
-    x_train, x_testanddev, y_train, y_testanddev = train_test_split(questions, rounds, test_size=0.3, random_state=329)
-    x_test, x_dev, y_test, y_dev = train_test_split(x_testanddev, y_testanddev, test_size=0.5, random_state=329)
+    # Split data into train, test and dev (can be further split if needed)
+    x_train, x_test, y_train, y_test = train_test_split(questions, rounds, test_size=0.2, random_state=329)
 
-    return x_train, x_test, x_dev, y_train, y_test, y_dev
+    return x_train, x_test, y_train, y_test

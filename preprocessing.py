@@ -2,6 +2,7 @@ import csv
 import random
 from sklearn.model_selection import train_test_split
 
+
 def preprocessData():
     # Headers: Show Number, Air Date, Round, Category, Value, Question, Answer
     # For now, just extracting the question and the round
@@ -18,12 +19,9 @@ def preprocessData():
 
         # Append questions and the round for each to the respective lists
         for row in reader:
-            questions.append(row[5])
-            rounds.append(row[2])
-
-    # Remove any Final Jeopardy rounds to focus only on 1st and 2nd round
-    while "Final Jeopardy!" in rounds:
-        rounds.remove("Final Jeopardy!")
+            if row[2] != "Final Jeopardy!":  # Disregard any Final Jeopardy rounds
+                questions.append(row[5])
+                rounds.append(row[2])
 
     # Give rounds a number label if they are from first or second round
     rounds = [0 if round == 'Jeopardy!' else 1 for round in rounds]

@@ -1,6 +1,7 @@
 import csv
 import random
 from sklearn.model_selection import train_test_split
+import re
 
 
 def preprocessData():
@@ -20,7 +21,7 @@ def preprocessData():
         # Append questions and the round for each to the respective lists
         for row in reader:
             if row[2] != "Final Jeopardy!":  # Disregard any Final Jeopardy rounds
-                questions.append(row[5])
+                questions.append(re.sub('<[^>]+>', '', row[5]))
                 rounds.append(row[2])
 
     # Give rounds a number label if they are from first or second round

@@ -11,6 +11,7 @@ import gensim
 import gensim.downloader as api
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import Pipeline
 
 
 # Read in the data
@@ -24,26 +25,31 @@ tokenizer.fit_on_texts(x_train)
 
 def sparseVector(): 
     #Sparse Vector - Count vectorizer
-    vectorizer = CountVectorizer()
-    x_sparse_train = vectorizer.fit_transform(x_train)
-    y_sparse_train = np.asarray(y_train).astype('float32')
-    x_sparse_dev = vectorizer.fit_transform(x_dev)
-    y_sparse_dev = np.asarray(y_dev).astype('float32')
-    x_sparse_test = vectorizer.fit_transform(x_test)
-    y_sparse_test = np.asarray(y_test).astype('float32')
+    # Define parameters for grid search
+    parameters = {
+        'vect__ngram_range': [(1, 1), (1, 2), (2, 2)],
+        'tfidf__norm': ('l1', 'l2'),
+        'tfidf__use_idf': (True, False),
+        'clf__C':[1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 100],
+        'clf__penalty':['none', 'l1', 'l2', 'elasticnet'],
+        'clf__solver':['newton-cg', 'lbfgs', 'liblinear']
+    }
     
-    model=LogisticRegression(multi_class="auto",random_state=329).fit(x_sparse_train,y_sparse_train)
+    # Create a pipeline for NB using CountVectorizer, TfidfTransformer, and MultinomialNB
+    text_clf = Pipeline([
+        ('vect', CountVectorizer()),
+        ('tfidf', TfidfTransformer()),
+        ('clf', LogisticRegression())])
     
-    dev_pred = model.predict(x_sparse_dev)
-    dev_results=accuracy_score(y_sparse_dev,dev_pred)
+    # Fit the pipeline using grid search on the training data
+    gs_clf = GridSearchCV(text_clf, parameters, cv=5, n_jobs=-1)
+    gs_clf = gs_clf.fit(x_train, y_train)
+    dev_pred = gs_clf.best_estimator_.predict(x_dev)
+    print(np.mean(dev_pred== y_test))
     
-    
-    
-    test_pred = model.predict(x_sparse_test)
-    test_results= accuracy_score(y_sparse_test, test_pred)
-    
-    print(dev_results)
-    print(test_results)
+    test_pred = gs_clf.best_estimator_.predict(x_test)
+    print(np.mean(test_pred== y_test))
+
     #Dev Accuracy: 0.5557899671823723
     #Test Accuracy: 0.5618612283169245
     

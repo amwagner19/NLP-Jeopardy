@@ -30,9 +30,9 @@ def sparseVector():
         'vect__ngram_range': [(1, 1), (1, 2), (2, 2)],
         'tfidf__norm': ('l1', 'l2'),
         'tfidf__use_idf': (True, False),
-        'clf__C':[1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 100],
-        'clf__penalty':['none', 'l1', 'l2', 'elasticnet'],
-        'clf__solver':['newton-cg', 'lbfgs', 'liblinear']
+        'clf__C':[1e-3, 1e-2, 1e-1, 1, 10, 100, 1000],
+        'clf__penalty':['l1', 'l2'],
+        'clf__solver':['liblinear']
     }
     
     # Create a pipeline for NB using CountVectorizer, TfidfTransformer, and MultinomialNB
@@ -40,13 +40,16 @@ def sparseVector():
         ('vect', CountVectorizer()),
         ('tfidf', TfidfTransformer()),
         ('clf', LogisticRegression())])
-    
+
     # Fit the pipeline using grid search on the training data
     gs_clf = GridSearchCV(text_clf, parameters, cv=5, n_jobs=-1)
     gs_clf = gs_clf.fit(x_train, y_train)
     dev_pred = gs_clf.best_estimator_.predict(x_dev)
     print(np.mean(dev_pred== y_test))
-    
+
+    # Determine best estimator
+    print(gs_clf.best_estimator_)
+
     test_pred = gs_clf.best_estimator_.predict(x_test)
     print(np.mean(test_pred== y_test))
 

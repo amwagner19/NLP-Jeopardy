@@ -10,4 +10,4 @@ Models tested include:
 * Sparse vector logistic regression (logisticRegression.py)
 * Dense vector logistic regression (logisticRegression.py)
 * CNN (cnn.py)
-* RNN (rnn.py
+* RNN (rnn.py)
